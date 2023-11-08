@@ -13,7 +13,7 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
             const getMessages = async () => {
                 console.log(currentUser._id, currentChat._id);
                 try {
-                    const response = await axios.get("http://localhost:3000/chat/getAllMessage", {
+                    const response = await axios.get("https://scintillate-server.onrender.com/chat/getAllMessage", {
                         params: {
                             from: currentUser._id,
                             to: currentChat._id
@@ -30,7 +30,7 @@ const ChatContainer = ({ currentChat, currentUser, socket }) => {
 
 
     const handleSendMsg = async (msg) => {
-        await axios.post("http://localhost:3000/chat/addMessage", {
+        await axios.post("https://scintillate-server.onrender.com/chat/addMessage", {
             from: currentUser._id,
             to: currentChat._id,
             message: msg

@@ -11,7 +11,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:3000/register", { name, email, password })
+            await axios.post("https://scintillate-server.onrender.com/register", { name, email, password })
             navigate('/login')
         } catch (error) {
             console.log(error.message)

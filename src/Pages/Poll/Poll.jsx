@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { io } from 'socket.io-client';
 
-const socket = io("http://localhost:3000");
+const socket = io("https://scintillate-server.onrender.com");
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 

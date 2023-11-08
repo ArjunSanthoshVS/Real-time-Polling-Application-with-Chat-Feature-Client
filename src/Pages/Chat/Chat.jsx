@@ -6,7 +6,7 @@ import { io } from 'socket.io-client'
 import Welcome from "../../Components/Welcome/Welcome"
 import ChatContainer from "../../Components/ChatConatiner/ChatContainer"
 import { useNavigate } from 'react-router-dom'
-const socket = io("http://localhost:3000")
+const socket = io("https://scintillate-server.onrender.com")
 
 const Chat = () => {
   const navigate = useNavigate()
@@ -17,7 +17,7 @@ const Chat = () => {
   useEffect(() => {
     if (user) {
       const details = async () => {
-        const response = await axios.get(`http://localhost:3000/chat/allContacts?id=${user?.user?._id}`)
+        const response = await axios.get(`https://scintillate-server.onrender.com/chat/allContacts?id=${user?.user?._id}`)
         setContacts(response.data)
       }
       details()
