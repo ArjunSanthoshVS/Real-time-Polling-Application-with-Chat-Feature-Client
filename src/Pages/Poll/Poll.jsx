@@ -1,5 +1,6 @@
+import axios from 'axios';
 import { Chart as ChartJS, BarElement, CategoryScale, LinearScale, Tooltip, Legend } from 'chart.js';
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Bar } from 'react-chartjs-2';
 import { io } from 'socket.io-client';
 
@@ -7,20 +8,50 @@ const socket = io("https://scintillate-server.onrender.com");
 
 ChartJS.register(BarElement, CategoryScale, LinearScale, Tooltip, Legend);
 
+
 const Poll = () => {
-    const [votes, setVotes] = useState([0, 0, 0]);
 
-    const handleVote = (index) => {
-        const updatedVotes = [...votes];
-        updatedVotes[index] += 1;
-        setVotes(updatedVotes);
+    const user = JSON.parse(localStorage.getItem("user"))
+    const userId = user.user._id
+    const [voteCount, setVoteCount] = useState([0, 0, 0]);
 
-        socket.emit('vote', { index, votes: updatedVotes });
+    const handleVote = async (index, lang) => {
+        try {
+            const updatedVotes = [...voteCount];
+            updatedVotes[index] += 1;
+            setVoteCount(updatedVotes);
+            await axios.post('https://scintillate-server.onrender.com/poll/vote', { lang, userId });
+            socket.emit('vote', { index, votes: updatedVotes });
+        } catch (error) {
+            alert("Maximum reached...!");
+            window.location.reload()
+        }
     };
 
     useEffect(() => {
+        const fetchVotes = async () => {
+            try {
+                const response = await axios.get('https://scintillate-server.onrender.com/poll/getAllVotes');
+                const fetchedVotes = response.data || [];
+
+                const countMap = {};
+                fetchedVotes.forEach((vote) => {
+                    const { option, count } = vote;
+                    countMap[option] = (countMap[option] || 0) + count;
+                });
+
+                const initialCounts = data.labels.map((lang) => countMap[lang] || 0);
+                setVoteCount(initialCounts);
+            } catch (error) {
+                console.error('Error fetching votes:', error);
+            }
+        };
+        fetchVotes();
+    }, []);
+
+    useEffect(() => {
         socket.on('update-votes', (data) => {
-            setVotes(data.votes);
+            setVoteCount(data.votes);
         });
 
         return () => {
@@ -29,15 +60,15 @@ const Poll = () => {
     }, []);
 
     const data = {
-        labels: ['Mon', 'Tue', 'Wed'],
+        labels: ['JavaScript', 'C Programming', 'Python'],
         datasets: [
             {
                 label: 'Vote',
-                data: votes,
+                data: voteCount,
                 backgroundColor: [
-                    'rgba(255, 99, 132, 0.6)', // Red color for 'Mon'
-                    'rgba(54, 162, 235, 0.6)', // Blue color for 'Tue'
-                    'rgba(75, 192, 192, 0.6)', // Green color for 'Wed'
+                    'rgba(255, 99, 132, 0.6)',
+                    'rgba(54, 162, 235, 0.6)',
+                    'rgba(75, 192, 192, 0.6)',
                 ],
                 borderColor: 'white',
                 borderWidth: 1,
@@ -51,10 +82,11 @@ const Poll = () => {
 
     return (
         <div>
+            <h3>You have 5 Votes....!</h3>
             <div>
-                {data.labels.map((day, index) => (
-                    <button key={index} onClick={() => handleVote(index)}>
-                        {day} - {votes[index]} votes
+                {data.labels.map((lang, index) => (
+                    <button key={index} onClick={() => handleVote(index, lang)}>
+                        {lang} - {voteCount[index]} votes
                     </button>
                 ))}
             </div>
